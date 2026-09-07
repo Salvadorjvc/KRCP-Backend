@@ -1,0 +1,27 @@
+## Compilación y binarios de .NET
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+
+## VS Code
+.vscode/
+
+## Configuración local
+appsettings.Development.json
+
+## Variables de entorno
+# Por el momento no tengo env pero lo agrego por si llego a usarlo
+.env
+.env.*
+!.env.example
+
+## JetBrains
+.idea/
+
+## Sistema operativo
+.DS_Store
+Thumbs.db

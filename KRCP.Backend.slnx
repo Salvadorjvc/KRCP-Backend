@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="KRCP.Application/KRCP.Application.csproj" Id="464a2e71-aaea-4612-b11d-fd9b40c47648" />
+  <Project Path="KRCP.Domain/KRCP.Domain.csproj" Id="e8b10585-fafe-4e37-93f0-47d2211a18a4" />
+  <Project Path="KRCP.Infrastructure/KRCP.Infrastructure.csproj" Id="2dd1aadf-0ce5-4232-b28c-a81e93eb987e" />
+  <Project Path="KRCP.WebApi/KRCP.WebApi.csproj" Id="df055f0e-8272-416d-bc35-d5f106e63bfd" />
+</Solution>
