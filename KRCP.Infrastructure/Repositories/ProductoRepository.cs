@@ -42,6 +42,7 @@ namespace KRCP.Infrastructure.Repositories
         public async Task<IReadOnlyList<Producto>> GetStockBajoAsync()
         {
             return await QueryConRelaciones()
+                .Where(p => p.StockActual <= p.StockMinimo && p.Activo)
                 .ToListAsync();
         }
     }

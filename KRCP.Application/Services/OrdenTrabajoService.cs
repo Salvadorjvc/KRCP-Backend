@@ -16,16 +16,19 @@ namespace KRCP.Application.Services
         private readonly IOrdenTrabajoRepository _otRepository;
         private readonly IClienteRepository _clienteRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IErpIntegracionLogService _erpLogService;
 
         public OrdenTrabajoService(
             IOrdenTrabajoRepository otRepository,
             IClienteRepository clienteRepository,
-            IUsuarioRepository usuarioRepository
+            IUsuarioRepository usuarioRepository,
+            IErpIntegracionLogService erpLogService
             )
         {
             _otRepository = otRepository;
             _clienteRepository = clienteRepository;
             _usuarioRepository = usuarioRepository;
+            _erpLogService = erpLogService;
 
         }
 
@@ -153,6 +156,17 @@ namespace KRCP.Application.Services
             if(dto.NuevoEstado == EstadoOrdenTrabajo.Completado)
             {
                 ot.FechaCierre = DateTime.UtcNow;
+
+                // Simulación de sincronización con el ERP central(luego averiguo mas sobre Oracle y SAP)
+                var payload = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    codigoOT = ot.CodigoOT,
+                    clienteId = ot.ClienteId,
+                    montoTotal = ot.CostoTotal,
+                    status = ot.Estado.ToString()
+                });
+
+                await _erpLogService.RegistrarAsync("ORDEN_TRABAJO", ot.OtId, "SYNC_OUT", payload);
             }
 
             await _otRepository.UpdateAsync(ot);

@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace KRCP.WebApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ClienteController : ControllerBase
     {
         private readonly IClienteService _clienteService;

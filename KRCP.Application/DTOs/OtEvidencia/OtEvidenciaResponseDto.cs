@@ -8,7 +8,7 @@ namespace KRCP.Application.DTOs.OtEvidencia
     public class OtEvidenciaResponseDto
     {
         public int EvidenciaId { get; set; }
-        public int OtID { get; set; }
+        public int OtId { get; set; }
         public string CodigoOT { get; set; } = string.Empty; // aplanado
         public string TipoEvidencia { get; set; } = string.Empty;
         public string UrlArchivo { get; set; } = string.Empty;
