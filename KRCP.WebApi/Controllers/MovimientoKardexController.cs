@@ -1,5 +1,8 @@
 ﻿using KRCP.Application.DTOs.MovimientoKardex;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
+using KRCP.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +10,7 @@ namespace KRCP.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class MovimientoKardexController : ControllerBase
     {
         private readonly IMovimientoKardexService _kardexService;
@@ -17,7 +21,7 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task <ActionResult<MovimientoKardexResponseDto>> GetByIdAsync(int id)
+        public async Task <ActionResult<MovimientoKardexResponseDto>> GetById(int id)
         {
             var kardex = await _kardexService.GetByIdAsync(id);
             return Ok(kardex);
@@ -38,12 +42,13 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.TecnicoAlmacen}")]
         public async Task <ActionResult<MovimientoKardexResponseDto>> RegistrarMovimientoKardex( MovimientoKardexCreateRequestDto dto)
         {
-            var usuarioId = 1; // TEMPORAL, hasta conectar el usuario autenticado del JWT
+            var usuarioId = User.GetUsuarioId();
 
             var resultado = await _kardexService.RegistrarMovimientoKardexAsync(dto, usuarioId);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = resultado.KardexId }, resultado);
+            return CreatedAtAction(nameof(GetById), new { id = resultado.KardexId }, resultado);
         }
 
 

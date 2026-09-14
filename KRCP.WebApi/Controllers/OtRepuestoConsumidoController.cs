@@ -1,5 +1,8 @@
 ﻿using KRCP.Application.DTOs.OtRepuestoConsumido;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
+using KRCP.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +10,7 @@ namespace KRCP.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class OtRepuestoConsumidoController : ControllerBase
     {
         private readonly IOtRepuestoConsumidoService _otRepuestoConsumidoService;
@@ -31,9 +35,10 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.TecnicoAlmacen}")]
         public async Task<ActionResult<OtRepuestoConsumidoResponseDto>> Despachar(OtRepuestoConsumidoCreateRequestDto dto)
         {
-            var usuarioAlmacenId = 1; // TEMPORAL, hasta conectar el usuario autenticado del JWT
+            var usuarioAlmacenId = User.GetUsuarioId();
 
             var resultado = await _otRepuestoConsumidoService.DespacharAsync(dto, usuarioAlmacenId);
             return CreatedAtAction(nameof(GetById), new {id = resultado.DetalleId}, resultado);

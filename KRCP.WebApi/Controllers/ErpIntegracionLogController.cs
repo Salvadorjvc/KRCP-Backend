@@ -1,5 +1,7 @@
 ﻿using KRCP.Application.DTOs.ErpIntegracionLog;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +9,7 @@ namespace KRCP.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = Roles.Admin)]
     public class ErpIntegracionLogController : ControllerBase
     {
         private readonly IErpIntegracionLogService _logService;

@@ -1,6 +1,8 @@
 ﻿using KRCP.Application.DTOs.Common;
 using KRCP.Application.DTOs.Ubicacion;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +10,7 @@ namespace KRCP.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UbicacionController : ControllerBase
     {
         private readonly IUbicacionService _ubicacionService;
@@ -32,6 +35,7 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<UbicacionResponseDto>> Create(UbicacionCreateRequestDto dto)
         {
             var resultado = await _ubicacionService.CreateAsync(dto);
@@ -39,6 +43,7 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Update(int id, UbicacionUpdateRequestDto dto)
         {
             await _ubicacionService.UpdateAsync(id, dto);
@@ -46,6 +51,7 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPatch("{id}/estado")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> ChangeStatus(int id, ChangeStatusRequestDto dto)
         {
             await _ubicacionService.ChangeStatusAsync(id, dto.Activo);

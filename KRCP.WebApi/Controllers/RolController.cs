@@ -1,7 +1,8 @@
 ﻿using KRCP.Application.DTOs.Common;
 using KRCP.Application.DTOs.Rol;
 using KRCP.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Http;
+using KRCP.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KRCP.WebApi.Controllers
@@ -9,6 +10,7 @@ namespace KRCP.WebApi.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = Roles.Admin)] // con esto ya todo el controller es exclusivo del Admin
     public class RolController : ControllerBase
     {
 

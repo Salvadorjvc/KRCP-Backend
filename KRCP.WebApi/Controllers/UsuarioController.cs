@@ -1,6 +1,8 @@
 ﻿using KRCP.Application.DTOs.Common;
 using KRCP.Application.DTOs.Usuario;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +11,7 @@ namespace KRCP.WebApi.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize (Roles = Roles.Admin)]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;

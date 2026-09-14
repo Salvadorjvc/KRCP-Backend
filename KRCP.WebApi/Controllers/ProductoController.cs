@@ -1,6 +1,9 @@
 ﻿using KRCP.Application.DTOs.Common;
 using KRCP.Application.DTOs.Producto;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
+using KRCP.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +11,7 @@ namespace KRCP.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProductoController : ControllerBase
     {
         private readonly IProductoService _productoService;
@@ -39,23 +43,26 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<ProductoResponseDto>> Create(ProductoCreateRequestDto dto)
         {
             var resultado = await _productoService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = resultado.ProductoId }, resultado);
         }
 
-        //PENDIENTE
+        
         [HttpPut("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Update (int id, ProductoUpdateRequestDto dto)
         {
-            var usuarioModificacionId = 1; //provisional (TEMPORAL) hasta tener el authorize del usuario jwt
+            var usuarioModificacionId = User.GetUsuarioId(); // obtiene el usuario de la sesion(usa mi extensions en de webApi)
 
             await _productoService.UpdateAsync(id, dto, usuarioModificacionId);
             return NoContent();
         }
 
         [HttpPatch("{id}/estado")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> ChangeStatus (int id, ChangeStatusRequestDto dto)
         {
             await _productoService.ChangeStatusAsync(id, dto.Activo);

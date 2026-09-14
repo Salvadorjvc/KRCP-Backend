@@ -1,5 +1,8 @@
 ﻿using KRCP.Application.DTOs.OtEvidencia;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
+using KRCP.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +10,7 @@ namespace KRCP.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class OtEvidenciaController : ControllerBase
     {
         private readonly IOtEvidenciaService _otEvidenciaService;
@@ -31,9 +35,10 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Planificador},{Roles.TecnicoAlmacen}")]
         public async Task <ActionResult<OtEvidenciaResponseDto>> Create (OtEvidenciaCreateRequestDto dto)
         {
-            var usuarioCargaId = 1; //TEMPORAL
+            var usuarioCargaId = User.GetUsuarioId();
 
             var resultado = await _otEvidenciaService.CreateAsync(dto, usuarioCargaId);
             return CreatedAtAction(nameof(GetById), new { id = resultado.OtId }, resultado);
