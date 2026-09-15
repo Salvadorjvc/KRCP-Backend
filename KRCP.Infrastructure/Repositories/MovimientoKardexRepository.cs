@@ -44,5 +44,12 @@ namespace KRCP.Infrastructure.Repositories
                 .Where(k => k.OtId == otId)
                 .ToListAsync();
         }
+
+        public async Task<IReadOnlyList<MovimientoKardex>> GetByMesAnioAsync(int mes, int anio)
+        {
+            return await QueryConRelaciones()
+                .Where(k => k.FechaMovimiento.Month == mes && k.FechaMovimiento.Year == anio)
+                .ToListAsync();
+        }
     }
 }

@@ -3,7 +3,6 @@ using KRCP.Application.DTOs.Common;
 using KRCP.Application.Interfaces.Services;
 using KRCP.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KRCP.WebApi.Controllers

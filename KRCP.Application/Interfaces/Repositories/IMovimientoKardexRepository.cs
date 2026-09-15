@@ -9,5 +9,6 @@ namespace KRCP.Application.Interfaces.Repositories
     {
         Task<IReadOnlyList<MovimientoKardex>> GetByProductoIdAsync(int productoId);
         Task<IReadOnlyList<MovimientoKardex>> GetByOtIdAsync(int otId);
+        Task<IReadOnlyList<MovimientoKardex>> GetByMesAnioAsync(int mes, int anio); // para los reportes
     }
 }

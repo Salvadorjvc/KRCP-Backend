@@ -3,6 +3,7 @@ using KRCP.Application.Interfaces.Repositories;
 using KRCP.Application.Interfaces.Security;
 using KRCP.Application.Interfaces.Services;
 using KRCP.Infrastructure.Persistence;
+using KRCP.Infrastructure.Reports;
 using KRCP.Infrastructure.Repositories;
 using KRCP.Infrastructure.Security;
 using KRCP.Infrastructure.Storage;
@@ -45,7 +46,9 @@ namespace KRCP.Infrastructure
             //cloudinary
             services.AddScoped<IFileStorageService, CloudinaryFileStorageService>();
 
-
+            //reportes
+            services.AddScoped<IPdfGenerator, QuestPdfGenerator>();
+            services.AddScoped<IExcelGenerator, ClosedXmlExcelGenerator>();
 
             return services;
         }

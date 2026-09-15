@@ -30,6 +30,7 @@ namespace KRCP.Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IErpIntegracionLogService, ErpIntegracionLogService>();
             services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<IReporteService, ReporteService>();
 
             return services;
         }

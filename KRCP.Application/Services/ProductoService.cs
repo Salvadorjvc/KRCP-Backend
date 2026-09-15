@@ -141,7 +141,9 @@ namespace KRCP.Application.Services
         {
             var existe = await _productoRepository.ExistsByCodigoParteAsync(codigoParte);
             if (existe)
+            {
                 throw new DuplicateEntityException("un Producto", "el código de parte", codigoParte);
+            }
         }
 
         private async Task ValidarCategoriaExisteAsync ( int categoriaId)
@@ -157,7 +159,9 @@ namespace KRCP.Application.Services
         {
             var ubicacion = await _ubicacionRepository.GetByIdAsync(ubicacionId);
             if (ubicacion is null)
+            {
                 throw new EntityNotFoundException("Ubicacion", ubicacionId);
+            }
         }
  
     }
