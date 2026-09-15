@@ -1,6 +1,1 @@
 @KRCP.WebApi_HostAddress = http://localhost:5079
-
-GET {{KRCP.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
