@@ -15,6 +15,17 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
 
+//Configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.WithOrigins("https://localhost:7131", "http://localhost:5173") //swagger y react (AllowAnyOrigin())
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Configuración de Swagger con el botón Authorize (Bearer JWT)
 builder.Services.AddSwaggerGen(options =>
 {

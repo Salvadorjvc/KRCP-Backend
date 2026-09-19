@@ -24,7 +24,8 @@ namespace KRCP.Application.DTOs.Producto
 
 
         // Nombre de la persona que hizo el último cambio(fk Usuario)
-        public string? UsuarioModificacion { get; set; }
+        public int? UsuarioModificacionId { get; set; }
+        public string? NombreUsuarioModificacion { get; set; }
 
 
     }

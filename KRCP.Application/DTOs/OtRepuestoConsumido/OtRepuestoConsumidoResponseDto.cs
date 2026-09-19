@@ -9,7 +9,7 @@ namespace KRCP.Application.DTOs.OtRepuestoConsumido
         public int DetalleId { get; set; }
 
         public int OtId { get; set; }
-        public int CodigoOt { get; set; } //aplanado
+        public string CodigoOt { get; set; } = string.Empty; //aplanado
 
         public int ProductoId { get; set; }
         public string CodigoParte { get; set; } = string.Empty; //aplanado

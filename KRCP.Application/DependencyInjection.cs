@@ -1,11 +1,12 @@
-﻿using KRCP.Application.Interfaces.Services;
+﻿using FluentValidation;
+using KRCP.Application.Interfaces.Services;
 using KRCP.Application.Services;
+using Mapster;
+using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using FluentValidation;
 
 namespace KRCP.Application
 {
@@ -15,6 +16,13 @@ namespace KRCP.Application
         {
             // Registrar todos los Validators de FluentValidation automáticamente
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+            // configuracion y escaneo el Mapster explícitamente
+            var config = TypeAdapterConfig.GlobalSettings;
+            config.Scan(Assembly.GetExecutingAssembly());
+            // inyeccion como Singleton y Scoped Mapper
+            services.AddSingleton(config);
+            services.AddScoped<IMapper, ServiceMapper>();
 
             // Registrar los Services
             services.AddScoped<IRolService, RolService>();

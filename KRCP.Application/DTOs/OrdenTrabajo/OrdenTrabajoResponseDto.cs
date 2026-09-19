@@ -21,7 +21,7 @@ namespace KRCP.Application.DTOs.OrdenTrabajo
         public string NombrePlanificador { get; set; } = string.Empty; // aplanado
 
         public int? TecnicoAsignadoId { get; set; }
-        public string? NombreTecnico { get; set; } = string.Empty; //aplando, opcional
+        public string? NombreTecnico { get; set; } //aplando, opcional
 
         public string Estado { get; set; } = string.Empty;
         public DateTime FechaIngreso { get; set; }
