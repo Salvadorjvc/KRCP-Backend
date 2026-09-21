@@ -18,9 +18,9 @@ builder.Services.AddEndpointsApiExplorer();
 //Configuración de CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://localhost:7131", "http://localhost:5173") //swagger y react (AllowAnyOrigin())
+        policy.WithOrigins("https://localhost:7131", "http://localhost:5173") //swagger y react (no es un AllowAnyOrigin())
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -96,6 +96,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 
