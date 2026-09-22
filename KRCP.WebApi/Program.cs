@@ -4,6 +4,7 @@ using KRCP.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
 using System.Text;
 
@@ -70,6 +71,10 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Autenticación JWT
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("La clave secreta 'Jwt:Key' no está configurada.");
+
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -77,6 +82,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false; // Respeta los claims cortos ("role", "name") sin re-mapearlo en el formato de microsoft
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -85,10 +92,12 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        RoleClaimType = "role",  // con esto le digo a ASP.NET core que claim usar como "rol"
+        NameClaimType = "name" // asigna User.Identity.Name con el claim "name"
     };
 });
+
 
 //builder.Services.AddOpenApi(); comentado pq daba conflicto de versiones, probare con el mas adelante en otro proyecto
 var app = builder.Build();

@@ -24,12 +24,13 @@ namespace KRCP.Infrastructure.Security
             var KeyString = _configuration["Jwt:Key"]
                 ?? throw new InvalidOperationException("La clave secreta 'Jwt:Key' no esta configurada");
 
+            //este es un claim estandar de JWT(RFC 7519) para el consumo directo en mi React (jwt-decode)
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
-                new Claim(ClaimTypes.Name, usuario.NombreCompleto),
-                new Claim(ClaimTypes.Email, usuario.Email),
-                new Claim(ClaimTypes.Role, usuario.Rol.NombreRol)
+                new Claim("nameidentifier", usuario.UsuarioId.ToString()),
+                new Claim("name", usuario.NombreCompleto),
+                new Claim("email", usuario.Email),
+                new Claim("role", usuario.Rol.NombreRol)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KeyString));
