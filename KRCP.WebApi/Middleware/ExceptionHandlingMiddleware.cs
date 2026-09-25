@@ -1,64 +1,57 @@
 ﻿using KRCP.Domain.Exceptions;
+using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
 using System.Text.Json;
 
 namespace KRCP.WebApi.Middleware
 {
-    public class ExceptionHandlingMiddleware
+    public class ExceptionHandlingMiddleware : IExceptionHandler
     {
-        private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger)
         {
-            _next = next;
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async ValueTask<bool> TryHandleAsync(
+               HttpContext httpContext,
+               Exception exception,
+               CancellationToken cancellationToken)
         {
-            try
+            var (statusCode, clientMessage) = exception switch
             {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-
-                await HandleExceptionAsync(context, ex);
-            }
-        } 
-
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
-        {
-            //este logError registra el error en los logs del servidor(util para debugging)
-            _logger.LogError(exception, "Ocurrio un error no controlado");
-
-            var statusCode = exception switch
-            {
-                EntityNotFoundException => HttpStatusCode.NotFound,      // 404
-                DuplicateEntityException => HttpStatusCode.Conflict,     //409
-                EntityNotActiveException => HttpStatusCode.BadRequest,   //400
-                StockInsuficienteException => HttpStatusCode.BadRequest,   //400
-                OrdenTrabajoCerradaException => HttpStatusCode.BadRequest,  //400
-                TransicionEstadoInvalidaException => HttpStatusCode.Conflict, //409
-                InvalidCredentialsException => HttpStatusCode.Unauthorized, //401
-                _ => HttpStatusCode.InternalServerError             //500 (otros errores no esperados)
+                EntityNotFoundException => (HttpStatusCode.NotFound, exception.Message),          // 404
+                DuplicateEntityException => (HttpStatusCode.Conflict, exception.Message),         // 409
+                EntityNotActiveException => (HttpStatusCode.BadRequest, exception.Message),       // 400
+                StockInsuficienteException => (HttpStatusCode.BadRequest, exception.Message),     // 400
+                OrdenTrabajoCerradaException => (HttpStatusCode.BadRequest, exception.Message),   // 400
+                TransicionEstadoInvalidaException => (HttpStatusCode.Conflict, exception.Message), // 409
+                InvalidCredentialsException => (HttpStatusCode.Unauthorized, exception.Message),  // 401
+                _ => (HttpStatusCode.InternalServerError, "Ocurrió un error interno en el servidor.") // 500
             };
 
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)statusCode;
+            if (statusCode == HttpStatusCode.InternalServerError)
+            {
+                _logger.LogError(exception, "Ocurrió un error no controlado en la API");
+            }
+            else
+            {
+                _logger.LogWarning("Excepción de negocio ({StatusCode}): {Message}", (int)statusCode, exception.Message);
+            }
 
+            httpContext.Response.ContentType = "application/json";
+            httpContext.Response.StatusCode = (int)statusCode;
 
             var response = new
             {
                 statusCode = (int)statusCode,
-                message = exception.Message
+                message = clientMessage
             };
 
-            var jsonResponse = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(jsonResponse);
+            await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response), cancellationToken);
 
+            return true;
         }
-
     }
 }

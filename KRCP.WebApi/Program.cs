@@ -18,6 +18,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add( new JsonStringEnumConverter());
     });
 
+builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -102,6 +104,8 @@ builder.Services.AddAuthentication(options =>
 //builder.Services.AddOpenApi(); comentado pq daba conflicto de versiones, probare con el mas adelante en otro proyecto
 var app = builder.Build();
 
+app.UseExceptionHandler(_ => { }); //middleware exceptions nativo
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -110,7 +114,6 @@ if (app.Environment.IsDevelopment())
     //app.MapOpenApi(); comentado por las misma razon que el anterior
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
