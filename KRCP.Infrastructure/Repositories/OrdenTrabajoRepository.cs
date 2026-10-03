@@ -49,12 +49,14 @@ namespace KRCP.Infrastructure.Repositories
         public async Task<IReadOnlyList<OrdenTrabajo>> GetByTecnicoAsignadoAsync(int tecnicoId)
         {
             return await QueryConRelaciones()
+                .Where(o => o.TecnicoAsignadoId == tecnicoId)
                 .ToListAsync();
         }
 
         public async Task<IReadOnlyList<OrdenTrabajo>> GetByEstadoAsync(EstadoOrdenTrabajo estado)
         {
             return await QueryConRelaciones()
+                .Where(o => o.Estado == estado)
                 .ToListAsync();
         }
     }
