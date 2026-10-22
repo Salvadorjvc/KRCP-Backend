@@ -9,9 +9,11 @@ namespace KRCP.Application.Interfaces.Services
     {
         Task<UsuarioResponseDto> GetByIdAsync(int id);
         Task<IReadOnlyList<UsuarioResponseDto>> GetAllAsync();
+        Task<IReadOnlyList<UsuarioSimpleResponseDto>> GetTecnicosActivosAsync(); //para consulta de planificador haci los tecnicos
         Task<UsuarioResponseDto> CreateAsync(UsuarioCreateRequestDto dto);
         Task UpdateAsync(int id, UsuarioUpdateRequestDto dto);
         Task ChangePasswordAsync(int id, ChangePasswordRequestDto dto);
         Task ChangeStatusAsync(int id, bool activo);//cambiar estadicius jr
+       
     }
 }

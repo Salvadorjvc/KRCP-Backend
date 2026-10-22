@@ -9,5 +9,6 @@ namespace KRCP.Application.Interfaces.Repositories
     {
         Task<Usuario?> GetByEmailAsync(string email);
         Task<bool> ExistsByEmailAsync(string email);
+        Task<IReadOnlyList<Usuario>> GetActivosByRolAsync(string nombreRol);
     }
 }

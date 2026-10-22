@@ -11,7 +11,7 @@ namespace KRCP.WebApi.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize (Roles = Roles.Admin)]
+    [Authorize]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
@@ -22,6 +22,7 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<IReadOnlyList<UsuarioResponseDto>>> GetAll()
         {
             var Usuarios = await _usuarioService.GetAllAsync();
@@ -29,13 +30,24 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<UsuarioResponseDto>> GetById(int id)
         {
             var usuario = await _usuarioService.GetByIdAsync(id);
             return Ok(usuario);
         }
 
+        [HttpGet("tecnicos")]
+        [Authorize(Roles = $"{Roles.Admin}, {Roles.Planificador}")]
+        public async Task<ActionResult<IReadOnlyList<UsuarioSimpleResponseDto>>> GetTecnicos()
+        {
+            var tecnicos = await _usuarioService.GetTecnicosActivosAsync();
+            return Ok(tecnicos);
+        }
+
+
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<UsuarioResponseDto>> Create(UsuarioCreateRequestDto dto)
         {
             var resultado = await _usuarioService.CreateAsync(dto);
@@ -43,6 +55,7 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Update(int id, UsuarioUpdateRequestDto dto)
         {
             await _usuarioService.UpdateAsync(id, dto);
@@ -50,6 +63,7 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpPatch("{id}/estado")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> ChangeStatus (int id, ChangeStatusRequestDto dto)
         {
             await _usuarioService.ChangeStatusAsync(id, dto.Activo);
@@ -58,6 +72,7 @@ namespace KRCP.WebApi.Controllers
 
         //cambiar contraseña
         [HttpPatch("{id}/cambiar-password")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> ChangePassword (int id, ChangePasswordRequestDto dto)
         {
             await _usuarioService.ChangePasswordAsync(id, dto);

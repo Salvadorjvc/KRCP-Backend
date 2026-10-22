@@ -12,7 +12,7 @@ namespace KRCP.Application.Interfaces.Services
         Task<IReadOnlyList<OrdenTrabajoResponseDto>> GetAllAsync();
         Task<IReadOnlyList<OrdenTrabajoResponseDto>> GetByTecnicoAsync(int tecnicoId);
         Task<IReadOnlyList<OrdenTrabajoResponseDto>> GetByEstadoAsync(EstadoOrdenTrabajo estado);
-        Task<OrdenTrabajoResponseDto> CreateAsync(OrdenTrabajoCreateRequestDto dto);
+        Task<OrdenTrabajoResponseDto> CreateAsync(OrdenTrabajoCreateRequestDto dto, int usuarioPlanificadorId);
         Task UpdateAsync(int id, OrdenTrabajoUpdateRequestDto dto, int usuarioModificacionId);
         Task AsignarTecnicoAsync(int otId, AsignarTecnicoRequestDto dto);
         Task CambiarEstadoAsync(int otId, CambiarEstadoRequestDto dto);

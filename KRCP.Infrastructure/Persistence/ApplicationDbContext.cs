@@ -1,4 +1,5 @@
 ﻿using KRCP.Domain.Entities;
+using KRCP.Infrastructure.Persistence.Converters;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,15 @@ namespace KRCP.Infrastructure.Persistence
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+        }
+
+        //método para aplicar el conversor UTC de forma global
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
+
+            // Fuerza a que cualquier propiedad de tipo DateTime use el conversor UTC automáticamente
+            configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
         }
     }
 }

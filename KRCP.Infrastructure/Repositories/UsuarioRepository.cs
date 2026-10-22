@@ -36,6 +36,15 @@ namespace KRCP.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<IReadOnlyList<Usuario>> GetActivosByRolAsync(string nombreRol)
+        {
+            return await _context.Usuarios
+                .Include(u => u.Rol)
+                .Where(u => u.Activo && u.Rol.NombreRol == nombreRol)
+                .OrderBy(u => u.NombreCompleto)
+                .ToListAsync();
+        }
+
         public async Task<bool> ExistsByEmailAsync (string email)
         {
             return await _context.Usuarios

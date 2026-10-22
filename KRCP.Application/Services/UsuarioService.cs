@@ -2,6 +2,7 @@
 using KRCP.Application.Interfaces.Repositories;
 using KRCP.Application.Interfaces.Security;
 using KRCP.Application.Interfaces.Services;
+using KRCP.Domain.Constants;
 using KRCP.Domain.Entities;
 using KRCP.Domain.Exceptions;
 using Mapster;
@@ -44,6 +45,13 @@ namespace KRCP.Application.Services
         {
             var usuarios = await _usuarioRepository.GetAllAsync();
             return usuarios.Adapt<List<UsuarioResponseDto>>();
+        }
+
+        //consulta para que un planificador consulte un tecnico para asignarlo a una ot
+        public async Task<IReadOnlyList<UsuarioSimpleResponseDto>> GetTecnicosActivosAsync()
+        {
+            var tecnicos = await _usuarioRepository.GetActivosByRolAsync(Roles.TecnicoAlmacen);
+            return tecnicos.Adapt<List<UsuarioSimpleResponseDto>>();
         }
 
         public async Task<UsuarioResponseDto> CreateAsync(UsuarioCreateRequestDto dto)

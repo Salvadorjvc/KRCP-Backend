@@ -65,8 +65,10 @@ namespace KRCP.Application.Services
             return ots.Adapt<List<OrdenTrabajoResponseDto>>();
         }
 
-        public async Task<OrdenTrabajoResponseDto> CreateAsync(OrdenTrabajoCreateRequestDto dto)
+        public async Task<OrdenTrabajoResponseDto> CreateAsync(OrdenTrabajoCreateRequestDto dto, int usuarioPlanificadorId)
         {
+            
+
             var cliente = await _clienteRepository.GetByIdAsync(dto.ClienteId);
             if (cliente is null)
             {
@@ -78,10 +80,10 @@ namespace KRCP.Application.Services
                 throw new EntityNotActiveException("El cliente",cliente.RazonSocial);
             }
 
-            var planificador = await _usuarioRepository.GetByIdAsync(dto.UsuarioPlanificadorId);
+            var planificador = await _usuarioRepository.GetByIdAsync(usuarioPlanificadorId);
             if (planificador is null)
             {
-                throw new EntityNotFoundException("Usuario", dto.UsuarioPlanificadorId);
+                throw new EntityNotFoundException("Usuario", usuarioPlanificadorId);
             }
 
             if (!planificador.Activo)
@@ -89,8 +91,8 @@ namespace KRCP.Application.Services
                 throw new EntityNotActiveException("El planificador", planificador.NombreCompleto);
             }
 
-
             var ordenTrabajo = dto.Adapt<OrdenTrabajo>();
+            ordenTrabajo.UsuarioPlanificadorId = usuarioPlanificadorId;
             ordenTrabajo.CodigoOT = await GenerarCodigoOtAsync();
             ordenTrabajo.Estado = EstadoOrdenTrabajo.Registrado;
 
