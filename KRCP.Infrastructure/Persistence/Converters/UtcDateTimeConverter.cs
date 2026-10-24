@@ -10,7 +10,7 @@ namespace KRCP.Infrastructure.Persistence.Converters
     {
         public UtcDateTimeConverter()
             :base(
-                 //al guardar en SQL server: (if) si es local, la pasa a UTC
+                 //al guardar en SQL server:  si es local, la pasa a UTC, de lo contrario lo deja como esta
                  v => v.Kind == DateTimeKind.Local ? v.ToUniversalTime() : v,
 
                  //al leer de SQL Server: Fuerza el Kind a UTC para que el JSON mande la 'Z

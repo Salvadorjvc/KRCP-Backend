@@ -32,13 +32,17 @@ namespace KRCP.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
         }
 
-        //método para aplicar el conversor UTC de forma global
+        /// <summary>
+        /// Configura convenciones globales en Entity Framework Core para asegurar 
+        /// que todas las propiedades de tipo DateTime y DateTime? se conviertan automáticamente a UTC.
+        /// </summary>
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             base.ConfigureConventions(configurationBuilder);
 
-            // Fuerza a que cualquier propiedad de tipo DateTime use el conversor UTC automáticamente
+            
             configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+            configurationBuilder.Properties<DateTime?>().HaveConversion<UtcNullableDateTimeConverter>();
         }
     }
 }

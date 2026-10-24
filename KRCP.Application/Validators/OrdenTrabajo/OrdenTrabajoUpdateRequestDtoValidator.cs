@@ -19,7 +19,7 @@ namespace KRCP.Application.Validators.OrdenTrabajo
                 .MaximumLength(100);
 
             RuleFor(x => x.FechaEstimadaEntrega)
-                .GreaterThan(DateTime.UtcNow)
+                .GreaterThanOrEqualTo(DateTime.UtcNow.Date)
                 .When(x => x.FechaEstimadaEntrega.HasValue)
                 .WithMessage("La fecha estimada de entrega debe ser futura.");
 

@@ -18,16 +18,18 @@ namespace KRCP.Application.Validators.OrdenTrabajo
                 .MaximumLength(150);
 
             RuleFor(x => x.NumeroSerie)
-                .NotEmpty().WithMessage("El numero de serie es obligatorio")
-                .MaximumLength(100);
-
-            RuleFor(x => x.UsuarioPlanificadorId)
-                .GreaterThan(0).WithMessage("Debe seleccionar un usuario planificador valido");
+                .Cascade(CascadeMode.Stop) // Si una regla falla, frena y no evalúa las siguientes de esta propiedad
+                .NotEmpty().WithMessage("El número de serie es obligatorio")
+                .MinimumLength(9).WithMessage("El número de serie debe tener al menos 9 caracteres")
+                .MaximumLength(100).WithMessage("El número de serie no puede superar los 100 caracteres");
 
             RuleFor(x => x.FechaEstimadaEntrega)
-                .GreaterThan(DateTime.UtcNow)
+                .GreaterThanOrEqualTo(DateTime.UtcNow.Date)
                 .When(x => x.FechaEstimadaEntrega.HasValue)
                 .WithMessage("La fecha estimada de entrega debe ser futura.");
+
+            RuleFor(x => x.CostoManoObra)
+               .GreaterThanOrEqualTo(0).WithMessage("El costo de mano de obra no puede ser negativo");
         } 
 
     }

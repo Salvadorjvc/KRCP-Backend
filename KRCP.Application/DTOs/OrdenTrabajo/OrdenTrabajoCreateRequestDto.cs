@@ -10,6 +10,7 @@ namespace KRCP.Application.DTOs.OrdenTrabajo
         public required string EquipoComponente { get; set; }
         public required string NumeroSerie { get; set; }
         public DateTime? FechaEstimadaEntrega { get; set; }
+        public decimal CostoManoObra { get; set; } = 0; //arranca con 0 de default
         public string? Observaciones { get; set; }
 
     }
