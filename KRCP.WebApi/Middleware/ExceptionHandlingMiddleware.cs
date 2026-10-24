@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using FluentValidation;
 
 namespace KRCP.WebApi.Middleware
 {
@@ -21,6 +22,9 @@ namespace KRCP.WebApi.Middleware
         {
             var (statusCode, clientMessage) = exception switch
             {
+                // Captura errores de FluentValidation, unifica los mensajes de error y responde con 400 Bad Request
+                ValidationException ve => (HttpStatusCode.BadRequest, string.Join(" ", ve.Errors.Select(e => e.ErrorMessage).Distinct())),
+
                 EntityNotFoundException => (HttpStatusCode.NotFound, exception.Message),          // 404
                 DuplicateEntityException => (HttpStatusCode.Conflict, exception.Message),         // 409
                 EntityNotActiveException => (HttpStatusCode.BadRequest, exception.Message),       // 400

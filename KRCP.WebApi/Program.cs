@@ -7,12 +7,13 @@ using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
 using System.Text;
+using KRCP.WebApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Configuración de Controladores con Serializador de Enums a String
-builder.Services.AddControllers()
+builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add( new JsonStringEnumConverter());

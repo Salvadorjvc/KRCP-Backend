@@ -55,7 +55,9 @@ namespace KRCP.WebApi.Controllers
         [Authorize(Roles = $"{Roles.Admin},{Roles.Planificador}")]
         public async Task<ActionResult<OrdenTrabajoResponseDto>> Create(OrdenTrabajoCreateRequestDto dto)
         {
-            var resultado = await _otService.CreateAsync(dto);
+            var usuarioPlanificadorId = User.GetUsuarioId();
+
+            var resultado = await _otService.CreateAsync(dto, usuarioPlanificadorId);
             return CreatedAtAction(nameof(GetById), new { id = resultado.OtId }, resultado);
         }
 
