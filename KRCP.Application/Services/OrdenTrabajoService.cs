@@ -95,6 +95,7 @@ namespace KRCP.Application.Services
             ordenTrabajo.UsuarioPlanificadorId = usuarioPlanificadorId;
             ordenTrabajo.CodigoOT = await GenerarCodigoOtAsync();
             ordenTrabajo.Estado = EstadoOrdenTrabajo.Registrado;
+            ordenTrabajo.CalcularCostoTotal();
 
             await _otRepository.AddAsync(ordenTrabajo);
             return ordenTrabajo.Adapt<OrdenTrabajoResponseDto>();
@@ -107,6 +108,11 @@ namespace KRCP.Application.Services
             if ( ot is null)
             {
                 throw new EntityNotFoundException("OrdenTrabajo", id);
+            }
+
+            if (ot.Estado == EstadoOrdenTrabajo.Completado || ot.Estado == EstadoOrdenTrabajo.Cancelado)
+            {
+                throw new OrdenTrabajoCerradaException(ot.CodigoOT, ot.Estado.ToString());
             }
 
             dto.Adapt(ot);
