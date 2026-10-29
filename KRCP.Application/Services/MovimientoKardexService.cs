@@ -88,7 +88,8 @@ namespace KRCP.Application.Services
             movimiento.StockNuevo = productoActualizado!.StockActual;
 
             await _kardexRepository.AddAsync(movimiento);
-            return movimiento.Adapt<MovimientoKardexResponseDto>();
+            var creada = await _kardexRepository.GetByIdAsync(movimiento.KardexId);
+            return creada!.Adapt<MovimientoKardexResponseDto>();
         }
     }
 }

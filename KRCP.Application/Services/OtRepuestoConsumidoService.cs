@@ -125,7 +125,8 @@ namespace KRCP.Application.Services
             ot.CalcularCostoTotal();
             await _otRepository.UpdateAsync(ot);
 
-            return detalle.Adapt<OtRepuestoConsumidoResponseDto>();
+            var creada = await _detalleRepository.GetByIdAsync(detalle.DetalleId);
+            return creada!.Adapt<OtRepuestoConsumidoResponseDto>();
         }
 
     }

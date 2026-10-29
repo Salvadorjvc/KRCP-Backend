@@ -64,8 +64,8 @@ namespace KRCP.Application.Services
             producto.StockActual = 0; // todo producto nuevo empieza sin stock
 
             await _productoRepository.AddAsync(producto);
-
-            return producto.Adapt<ProductoResponseDto>();
+            var creada = await _productoRepository.GetByIdAsync(producto.ProductoId);
+            return creada!.Adapt<ProductoResponseDto>();
 
         }
 

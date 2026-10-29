@@ -75,8 +75,8 @@ namespace KRCP.Application.Services
 
 
             await _otEvidenciaRepository.AddAsync(otEvidencia);
-
-            return otEvidencia.Adapt<OtEvidenciaResponseDto>();
+            var creada = await _otEvidenciaRepository.GetByIdAsync(otEvidencia.EvidenciaId);
+            return creada!.Adapt<OtEvidenciaResponseDto>();
         }
 
         //privates

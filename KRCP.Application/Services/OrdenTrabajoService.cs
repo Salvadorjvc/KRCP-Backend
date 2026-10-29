@@ -98,8 +98,11 @@ namespace KRCP.Application.Services
             ordenTrabajo.CalcularCostoTotal();
 
             await _otRepository.AddAsync(ordenTrabajo);
-            return ordenTrabajo.Adapt<OrdenTrabajoResponseDto>();
-                
+
+            // Se relee con los Include del repositorio, sin depender de la validación previa
+            var creada = await _otRepository.GetByIdAsync(ordenTrabajo.OtId);
+            return creada!.Adapt<OrdenTrabajoResponseDto>();
+
         }
 
         public async Task UpdateAsync(int id, OrdenTrabajoUpdateRequestDto dto, int usuarioModificacionId)

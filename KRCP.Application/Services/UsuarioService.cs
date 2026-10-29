@@ -63,7 +63,8 @@ namespace KRCP.Application.Services
             usuario.PasswordHash = _passwordHasher.Hash(dto.Password);
 
             await _usuarioRepository.AddAsync(usuario);
-            return usuario.Adapt<UsuarioResponseDto>();
+            var creada = await _usuarioRepository.GetByIdAsync(usuario.UsuarioId);
+            return creada!.Adapt<UsuarioResponseDto>();
         }
 
         public async Task UpdateAsync(int id, UsuarioUpdateRequestDto dto)
