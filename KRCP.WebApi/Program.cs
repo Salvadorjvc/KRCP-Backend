@@ -3,8 +3,7 @@ using KRCP.Infrastructure;
 using KRCP.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
 using System.Text;
 using KRCP.WebApi.Filters;
@@ -57,20 +56,11 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Ingresa tu token JWT obtenido del /api/Auth/login"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+    options.AddSecurityRequirement(document =>
+     new OpenApiSecurityRequirement
+     {
+         [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+     });
 });
 
 // Autenticación JWT
