@@ -23,21 +23,23 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Planificador}")]
         public async Task<ActionResult<IReadOnlyList<OrdenTrabajoResponseDto>>> GetAll()
         {
             var Ots = await _otService.GetAllAsync();
             return Ok(Ots);
         }
 
+        //detalle: el técnico solo abre sus ordenes
         [HttpGet("{id}")]
         public async Task<ActionResult<OrdenTrabajoResponseDto>> GetById(int id)
         {
-            var Ot = await _otService.GetByIdAsync(id);
+            var Ot = await _otService.GetByIdAsync(id, RestringirATecnico());
             return Ok(Ot);
         }
 
         [HttpGet("por-tecnico")]
-        [Authorize(Roles = $"{Roles.Admin},{Roles.TecnicoAlmacen}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<IReadOnlyList<OrdenTrabajoResponseDto>>> GetByTecnico(int tecnicoId)
         {
             var Ots = await _otService.GetByTecnicoAsync(tecnicoId);
@@ -45,9 +47,18 @@ namespace KRCP.WebApi.Controllers
         }
 
         [HttpGet("por-estado")]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Planificador}")]
         public async Task<ActionResult<IReadOnlyList<OrdenTrabajoResponseDto>>> GetByEstado(EstadoOrdenTrabajo estado)
         {
             var Ots = await _otService.GetByEstadoAsync(estado);
+            return Ok(Ots);
+        }
+
+        [HttpGet("mis-ordenes")]
+        [Authorize(Roles = Roles.TecnicoAlmacen)]
+        public async Task<ActionResult<IReadOnlyList<OrdenTrabajoResponseDto>>> GetMisOrdenes()
+        {
+            var Ots = await _otService.GetByTecnicoAsync(User.GetUsuarioId());
             return Ok(Ots);
         }
 
@@ -83,7 +94,7 @@ namespace KRCP.WebApi.Controllers
         [Authorize(Roles = $"{Roles.Admin},{Roles.Planificador},{Roles.TecnicoAlmacen}")]
         public async Task<IActionResult> CambiarEstado(int id, CambiarEstadoRequestDto dto)
         {
-            await _otService.CambiarEstadoAsync(id, dto);
+            await _otService.CambiarEstadoAsync(id, dto, RestringirATecnico());
             return NoContent();
         }
 
@@ -96,5 +107,8 @@ namespace KRCP.WebApi.Controllers
         }
 
 
+        // Probando el uso del operador ternario en C# (evalúa una condición y devuelve uno de dos valores)
+        private int? RestringirATecnico() =>
+            User.IsInRole(Roles.TecnicoAlmacen) ? User.GetUsuarioId() : null;
     }
 }

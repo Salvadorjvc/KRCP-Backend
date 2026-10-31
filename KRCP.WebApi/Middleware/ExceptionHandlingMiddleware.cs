@@ -32,6 +32,8 @@ namespace KRCP.WebApi.Middleware
                 OrdenTrabajoCerradaException => (HttpStatusCode.BadRequest, exception.Message),   // 400
                 TransicionEstadoInvalidaException => (HttpStatusCode.Conflict, exception.Message), // 409
                 InvalidCredentialsException => (HttpStatusCode.Unauthorized, exception.Message),  // 401
+                IncorrectCurrentPasswordException => (HttpStatusCode.BadRequest, exception.Message), //400
+                AccesoDenegadoException => (HttpStatusCode.Forbidden, exception.Message), // 403
                 _ => (HttpStatusCode.InternalServerError, "Ocurrió un error interno en el servidor.") // 500
             };
 

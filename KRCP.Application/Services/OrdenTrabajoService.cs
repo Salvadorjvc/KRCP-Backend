@@ -32,14 +32,12 @@ namespace KRCP.Application.Services
 
         }
 
-        public async Task<OrdenTrabajoResponseDto> GetByIdAsync(int id)
+        public async Task<OrdenTrabajoResponseDto> GetByIdAsync(int id, int? soloTecnicoId = null)
         {
-            var ot = await _otRepository.GetByIdAsync(id);
+            var ot = await _otRepository.GetByIdAsync(id)
+                ?? throw new EntityNotFoundException("OrdenTrabajo", id);
 
-            if (ot is null)
-            {
-                throw new EntityNotFoundException("OrdenTrabajo", id);
-            }
+            VerificarAcceso(ot, soloTecnicoId);
 
             return ot.Adapt<OrdenTrabajoResponseDto>();
         }
@@ -151,13 +149,12 @@ namespace KRCP.Application.Services
             await _otRepository.UpdateAsync(ot);
         }
 
-        public async Task CambiarEstadoAsync(int otId, CambiarEstadoRequestDto dto)
+        public async Task CambiarEstadoAsync(int otId, CambiarEstadoRequestDto dto, int? soloTecnicoId = null)
         {
-            var ot = await _otRepository.GetByIdAsync(otId);
-            if (ot is null)
-            {
-                throw new EntityNotFoundException("OrdenTrabajo", otId);
-            }
+            var ot = await _otRepository.GetByIdAsync(otId)
+                ?? throw new EntityNotFoundException("OrdenTrabajo", otId);
+
+            VerificarAcceso(ot, soloTecnicoId);
 
             ValidarTransicionEstado(ot.Estado, dto.NuevoEstado);
 
@@ -208,6 +205,12 @@ namespace KRCP.Application.Services
         {
             if (estadoActual == EstadoOrdenTrabajo.Completado || estadoActual == EstadoOrdenTrabajo.Cancelado)
                 throw new TransicionEstadoInvalidaException(estadoActual.ToString());
+        }
+
+        private static void VerificarAcceso(OrdenTrabajo ot, int? soloTecnicoId)
+        {
+            if (soloTecnicoId.HasValue && ot.TecnicoAsignadoId != soloTecnicoId.Value)
+                throw new AccesoDenegadoException("No tiene asignada esta orden de trabajo.");
         }
     }
 }

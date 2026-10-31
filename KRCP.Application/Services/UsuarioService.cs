@@ -102,7 +102,7 @@ namespace KRCP.Application.Services
             var passwordValida = _passwordHasher.Verify(dto.PasswordActual, usuario.PasswordHash);
             if (!passwordValida)
             {
-                throw new InvalidCredentialsException();
+                throw new IncorrectCurrentPasswordException();
             }
 
             usuario.PasswordHash = _passwordHasher.Hash(dto.PasswordNueva);

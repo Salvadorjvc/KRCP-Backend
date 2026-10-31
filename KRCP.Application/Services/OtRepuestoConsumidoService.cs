@@ -1,4 +1,5 @@
 ﻿using KRCP.Application.DTOs.OtRepuestoConsumido;
+using KRCP.Application.Interfaces.Persistence;
 using KRCP.Application.Interfaces.Repositories;
 using KRCP.Application.Interfaces.Services;
 using KRCP.Domain.Entities;
@@ -19,6 +20,7 @@ namespace KRCP.Application.Services
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IProductoService _productoService;
         private readonly IMovimientoKardexRepository _kardexRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public OtRepuestoConsumidoService(
             IOtRepuestoConsumidoRepository detalleRepository,
@@ -26,7 +28,8 @@ namespace KRCP.Application.Services
             IProductoRepository productoRepository,
             IUsuarioRepository usuarioRepository,
             IProductoService productoService,
-            IMovimientoKardexRepository kardexRepository)
+            IMovimientoKardexRepository kardexRepository,
+            IUnitOfWork unitOfWork)
         {
             _detalleRepository = detalleRepository;
             _otRepository = otRepository;
@@ -34,6 +37,7 @@ namespace KRCP.Application.Services
             _usuarioRepository = usuarioRepository;
             _productoService = productoService;
             _kardexRepository = kardexRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<OtRepuestoConsumidoResponseDto> GetByIdAsync(int id)
@@ -55,78 +59,76 @@ namespace KRCP.Application.Services
 
         public async Task<OtRepuestoConsumidoResponseDto> DespacharAsync(OtRepuestoConsumidoCreateRequestDto dto, int usuarioAlmacenId)
         {
+            return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var ot = await _otRepository.GetByIdAsync(dto.OtId)
+                   ?? throw new EntityNotFoundException("OrdenTrabajo", dto.OtId);
+
+                if (ot.Estado == EstadoOrdenTrabajo.Completado || ot.Estado == EstadoOrdenTrabajo.Cancelado)
+                {
+                    throw new OrdenTrabajoCerradaException(ot.CodigoOT, ot.Estado.ToString());
+                }
+
+                var producto = await _productoRepository.GetByIdAsync(dto.ProductoId)
+                   ?? throw new EntityNotFoundException("Producto", dto.ProductoId);
+
+                if (!producto.Activo)
+                {
+                    throw new EntityNotActiveException("El producto", producto.CodigoParte);
+                }
+
+                if (producto.StockActual < dto.Cantidad)
+                {
+                    throw new StockInsuficienteException(producto.CodigoParte, dto.Cantidad, producto.StockActual);
+                }
+
+                var usuario = await _usuarioRepository.GetByIdAsync(usuarioAlmacenId)
+                  ?? throw new EntityNotFoundException("Usuario", usuarioAlmacenId);
+
+
+                if (!usuario.Activo)
+                {
+                    throw new EntityNotActiveException("El usuario", usuario.NombreCompleto);
+                }
+
+                var stockAnterior = producto.StockActual; // se guarda antes de ajustar
+
+                var detalle = dto.Adapt<OtRepuestoConsumido>();
+
+                detalle.PrecioUnitarioHistorico = producto.CostoUnitario;
+                detalle.UsuarioAlmacenId = usuarioAlmacenId;
+
+                await _detalleRepository.AddAsync(detalle);
+
+                // Descontar stock (esto ya valida internamente stock insuficiente)
+                await _productoService.AjustarStockAsync(dto.ProductoId, dto.Cantidad, TipoMovimientoKardex.Salida);
+
+                var movimientoKardex = new MovimientoKardex
+                {
+                    ProductoId = dto.ProductoId,
+                    UsuarioId = usuarioAlmacenId,
+                    OtId = dto.OtId,
+                    TipoMovimiento = TipoMovimientoKardex.Salida,
+                    Cantidad = dto.Cantidad,
+                    StockAnterior = stockAnterior,
+                    StockNuevo = stockAnterior - dto.Cantidad,
+                    Motivo = $"Despacho a OT {ot.CodigoOT}"
+                };
+                await _kardexRepository.AddAsync(movimientoKardex);
+
+                //Recalcular CostoRepuestos y CostoTotal de la OT
+                var totalRepuestos = await _detalleRepository.SumarCostoTotalByOtIdAsync(dto.OtId);
+                ot.CostoRepuestos = totalRepuestos;
+                ot.CalcularCostoTotal();
+                await _otRepository.UpdateAsync(ot);
+
+                var creada = await _detalleRepository.GetByIdAsync(detalle.DetalleId);
+
+                return creada!.Adapt<OtRepuestoConsumidoResponseDto>();
+
+            });
      
-            var ot = await _otRepository.GetByIdAsync(dto.OtId);
-            if (ot is null)
-            {
-                throw new EntityNotFoundException("OrdenTrabajo", dto.OtId);
-            }
 
-            if (ot.Estado == EstadoOrdenTrabajo.Completado || ot.Estado == EstadoOrdenTrabajo.Cancelado)
-            {
-                throw new OrdenTrabajoCerradaException(ot.CodigoOT, ot.Estado.ToString());
-            }
-
-           
-            var producto = await _productoRepository.GetByIdAsync(dto.ProductoId);
-            if (producto is null)
-            {
-                throw new EntityNotFoundException("Producto", dto.ProductoId);
-            }
-
-            if (!producto.Activo)
-            {
-                throw new EntityNotActiveException("El producto", producto.CodigoParte);
-            }
-
-          
-            var usuario = await _usuarioRepository.GetByIdAsync(usuarioAlmacenId);
-            if (usuario is null)
-            {
-                throw new EntityNotFoundException("Usuario", usuarioAlmacenId);
-            }
-
-            if (!usuario.Activo)
-            {
-                throw new EntityNotActiveException("El usuario", usuario.NombreCompleto);
-            }
-
-            var stockAnterior = producto.StockActual; // se guarda antes de ajustar
-
-            var detalle = dto.Adapt<OtRepuestoConsumido>();
-
-            detalle.PrecioUnitarioHistorico = producto.CostoUnitario;
-            detalle.UsuarioAlmacenId = usuarioAlmacenId;
-
-            await _detalleRepository.AddAsync(detalle);
-
-            // Descontar stock (esto ya valida internamente stock insuficiente)
-            await _productoService.AjustarStockAsync(dto.ProductoId, dto.Cantidad, TipoMovimientoKardex.Salida);
-
-            // registrar el movimiento de Kardex correspondiente
-            var productoActualizado = await _productoRepository.GetByIdAsync(dto.ProductoId);
-
-            var movimientoKardex = new MovimientoKardex
-            {
-                ProductoId = dto.ProductoId,
-                UsuarioId = usuarioAlmacenId,
-                OtId = dto.OtId,
-                TipoMovimiento = TipoMovimientoKardex.Salida,
-                Cantidad = dto.Cantidad,
-                StockAnterior = stockAnterior,
-                StockNuevo = productoActualizado!.StockActual,
-                Motivo = $"Despacho a OT {ot.CodigoOT}"
-            };
-            await _kardexRepository.AddAsync(movimientoKardex);
-
-            //Recalcular CostoRepuestos y CostoTotal de la OT
-            var totalRepuestos = await _detalleRepository.SumarCostoTotalByOtIdAsync(dto.OtId);
-            ot.CostoRepuestos = totalRepuestos;
-            ot.CalcularCostoTotal();
-            await _otRepository.UpdateAsync(ot);
-
-            var creada = await _detalleRepository.GetByIdAsync(detalle.DetalleId);
-            return creada!.Adapt<OtRepuestoConsumidoResponseDto>();
         }
 
     }

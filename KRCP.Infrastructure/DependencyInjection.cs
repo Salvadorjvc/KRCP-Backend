@@ -1,4 +1,5 @@
 ﻿using CloudinaryDotNet;
+using KRCP.Application.Interfaces.Persistence;
 using KRCP.Application.Interfaces.Repositories;
 using KRCP.Application.Interfaces.Security;
 using KRCP.Application.Interfaces.Services;
@@ -49,6 +50,9 @@ namespace KRCP.Infrastructure
             //reportes
             services.AddScoped<IPdfGenerator, QuestPdfGenerator>();
             services.AddScoped<IExcelGenerator, ClosedXmlExcelGenerator>();
+
+            //transacciones
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }
